@@ -1,50 +1,59 @@
 import { defineStore } from 'pinia'
-import { useSettingsStore } from './settings'
-import { exercisesData } from '../data/exercises'
+import type { ExerciseCategoryKey } from '@/types/exercise'
+import { exercisesData } from '@/data/exercises'
+import { useSettingsStore } from '@/stores/settings'
+
+import '@/types/electron'
 
 export const useSessionStore = defineStore('session', {
   state: () => ({
     active: false,
     currentExerciseIndex: 0,
     currentCategoryIndex: 0,
-    categories: ['eyes', 'neck', 'bonus'],
+    categories: ['eyes', 'neck', 'additional'] as ExerciseCategoryKey[],
     timeLeft: 0,
-    timerInterval: null,
-    completedExercises: [] // array of exercise IDs
+    timerInterval: null as ReturnType<typeof setInterval> | null,
+    completedExercises: [] as string[],
   }),
+
   getters: {
-    currentCategory(state) {
+    currentCategory(state): ExerciseCategoryKey {
       return state.categories[state.currentCategoryIndex]
     },
+
     currentExercise(state) {
-      if (!this.currentCategory) return null
-      return exercisesData[this.currentCategory][state.currentExerciseIndex]
+      const category = state.categories[state.currentCategoryIndex]
+      if (!category) return null
+      return exercisesData[category][state.currentExerciseIndex] ?? null
     },
-    isSessionFinished(state) {
+
+    isSessionFinished(state): boolean {
       return state.currentCategoryIndex >= state.categories.length
-    }
+    },
   },
+
   actions: {
-    startSession() {
+    startSession(): void {
       this.active = true
       this.currentCategoryIndex = 0
       this.currentExerciseIndex = 0
       this.completedExercises = []
       this.startTimerForCurrent()
-      if (window.electronAPI) {
-        window.electronAPI.showWindow()
-      }
+      window.electronAPI?.showWindow()
     },
-    startTimerForCurrent() {
+
+    startTimerForCurrent(): void {
       this.clearTimer()
+
       const exercise = this.currentExercise
       if (!exercise) {
         this.finishSession()
         return
       }
+
       const settings = useSettingsStore()
       this.timeLeft = settings.getDuration(exercise.id)
-      
+
       this.timerInterval = setInterval(() => {
         if (this.timeLeft > 0) {
           this.timeLeft--
@@ -53,29 +62,35 @@ export const useSessionStore = defineStore('session', {
         }
       }, 1000)
     },
-    clearTimer() {
-      if (this.timerInterval) {
+
+    clearTimer(): void {
+      if (this.timerInterval !== null) {
         clearInterval(this.timerInterval)
         this.timerInterval = null
       }
     },
-    completeCurrent() {
+
+    completeCurrent(): void {
       if (this.currentExercise) {
         this.completedExercises.push(this.currentExercise.id)
       }
       this.nextExercise()
     },
-    skipCurrent() {
+
+    skipCurrent(): void {
       this.nextExercise()
     },
-    nextExercise() {
+
+    nextExercise(): void {
       const categoryExercises = exercisesData[this.currentCategory]
+
       if (this.currentExerciseIndex < categoryExercises.length - 1) {
         this.currentExerciseIndex++
         this.startTimerForCurrent()
       } else {
         this.currentCategoryIndex++
         this.currentExerciseIndex = 0
+
         if (this.isSessionFinished) {
           this.finishSession()
         } else {
@@ -83,15 +98,14 @@ export const useSessionStore = defineStore('session', {
         }
       }
     },
-    finishSession() {
+
+    finishSession(): void {
       this.active = false
       this.clearTimer()
-      if (window.electronAPI) {
-        window.electronAPI.showNotification({
-          title: 'Гимнастика завершена!',
-          body: 'Отличная работа! Вы можете закрыть окно.'
-        })
-      }
-    }
-  }
+      window.electronAPI?.showNotification({
+        title: 'Гимнастика завершена!',
+        body: 'Отличная работа! Вы можете закрыть окно.',
+      })
+    },
+  },
 })

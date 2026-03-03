@@ -1,22 +1,18 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps({
-	timeLeft: {
-		type: Number,
-		required: true,
-	},
-	totalTime: {
-		type: Number,
-		required: true,
-	},
-})
+const props = defineProps<{
+	timeLeft: number
+	totalTime: number
+}>()
 
-const emit = defineEmits(['skip'])
+const emit = defineEmits<{
+	skip: []
+}>()
 
-const progressPercentage = computed(() => {
-	return ((props.totalTime - props.timeLeft) / props.totalTime) * 100
-})
+const progressPercentage = computed(
+	() => ((props.totalTime - props.timeLeft) / props.totalTime) * 100,
+)
 
 const strokeDasharray = computed(() => {
 	const radius = 45

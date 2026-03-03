@@ -1,31 +1,32 @@
-<script setup>
-import { useSettingsStore } from '../stores/settings'
-import { exercisesData } from '../data/exercises'
+<script setup lang="ts">
+import { useSettingsStore } from '@/stores/settings'
+import { exercisesData } from '@/data/exercises'
+import type { ExerciseCategory } from '@/types/exercise'
 
 const settings = useSettingsStore()
 
-const categories = [
+const categories: ExerciseCategory[] = [
 	{ id: 'eyes', label: 'Гимнастика для глаз' },
 	{ id: 'neck', label: 'Гимнастика шеи' },
-	{ id: 'bonus', label: 'Бонусные упражнения' },
+	{ id: 'additional', label: 'Дополнительные упражнения' },
 ]
 
-const updateDuration = (id, event) => {
-	const val = parseInt(event.target.value)
+const updateDuration = (id: string, event: Event): void => {
+	const val = parseInt((event.target as HTMLInputElement).value)
 	if (!isNaN(val) && val > 0) {
 		settings.setDuration(id, val)
 	}
 }
 
-const updateInterval = event => {
-	const val = parseInt(event.target.value)
+const updateInterval = (event: Event): void => {
+	const val = parseInt((event.target as HTMLInputElement).value)
 	if (!isNaN(val) && val >= 1) {
 		settings.setNotificationInterval(val)
 	}
 }
 
-const toggleAutostart = async e => {
-	await settings.setAutoStart(e.target.checked)
+const toggleAutostart = async (event: Event): Promise<void> => {
+	await settings.setAutoStart((event.target as HTMLInputElement).checked)
 }
 </script>
 

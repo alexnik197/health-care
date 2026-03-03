@@ -1,27 +1,15 @@
-<script setup>
-import { computed } from 'vue'
-import { useSessionStore } from '../stores/session'
-import { exercisesData } from '../data/exercises'
+<script setup lang="ts">
+import { useExerciseProgress } from '@/composables/useExerciseProgress'
+import { exercisesData } from '@/data/exercises'
+import type { ExerciseCategory } from '@/types/exercise'
 
-const session = useSessionStore()
+const { isCompleted, isActive } = useExerciseProgress()
 
-const categories = [
+const categories: ExerciseCategory[] = [
 	{ id: 'eyes', label: 'Гимнастика для глаз' },
 	{ id: 'neck', label: 'Гимнастика шеи' },
-	{ id: 'bonus', label: 'Бонусные упражнения' },
+	{ id: 'additional', label: 'Дополнительные упражнения' },
 ]
-
-const getExercises = categoryId => {
-	return exercisesData[categoryId] || []
-}
-
-const isCompleted = id => {
-	return session.completedExercises.includes(id)
-}
-
-const isActive = id => {
-	return session.active && session.currentExercise?.id === id
-}
 </script>
 
 <template>
@@ -33,14 +21,13 @@ const isActive = id => {
 		>
 			<h3 class="category-title">{{ cat.label }}</h3>
 			<div
-				v-for="ex in getExercises(cat.id)"
+				v-for="ex in exercisesData[cat.id]"
 				:key="ex.id"
 				class="exercise-item"
 				:class="{
 					'is-active': isActive(ex.id),
 					'is-completed': isCompleted(ex.id),
 				}"
-				:title="ex.description"
 			>
 				<div class="checkbox-wrapper">
 					<svg
@@ -63,10 +50,7 @@ const isActive = id => {
 				<div class="ex-info">
 					<span class="ex-title">{{ ex.title }}</span>
 				</div>
-				<div
-					class="tooltip"
-					v-if="isActive(ex.id) || true"
-				>
+				<div class="tooltip">
 					{{ ex.description }}
 				</div>
 			</div>

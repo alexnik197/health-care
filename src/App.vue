@@ -1,56 +1,40 @@
-<script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { useSettingsStore } from './stores/settings'
-import { useSessionStore } from './stores/session'
-import Timer from './components/Timer.vue'
-import ExerciseList from './components/ExerciseList.vue'
-import SettingsPanel from './components/SettingsPanel.vue'
+<script setup lang="ts">
+import { ref, onMounted, watch } from 'vue'
+import { useSettingsStore } from '@/stores/settings'
+import { useSessionStore } from '@/stores/session'
+import { useIntervalTimer } from '@/composables/useIntervalTimer'
+import Timer from '@/components/Timer.vue'
+import ExerciseList from '@/components/ExerciseList.vue'
+import SettingsPanel from '@/components/SettingsPanel.vue'
+
+import '@/types/electron'
 
 const settings = useSettingsStore()
 const session = useSessionStore()
 
-const currentTab = ref('session') // 'session' or 'settings'
-let notificationTimer = null
+const currentTab = ref<'session' | 'settings'>('session')
 
-const startNotificationTimer = () => {
-	if (notificationTimer) clearInterval(notificationTimer)
-	notificationTimer = setInterval(
-		() => {
-			// Show notification to start gymnastics
-			if (window.electronAPI && !session.active) {
-				window.electronAPI.showNotification({
-					title: 'Время размяться!',
-					body: 'Пора сделать перерыв и выполнить гимнастику для глаз и шеи.',
-				})
-			}
-		},
-		settings.notificationInterval * 60 * 1000,
-	)
-}
+const { start: startNotificationTimer } = useIntervalTimer(
+	() => settings.notificationInterval * 60 * 1000,
+	() => {
+		if (!session.active) {
+			window.electronAPI?.showNotification({
+				title: 'Время размяться!',
+				body: 'Пора сделать перерыв и выполнить гимнастику для глаз и шеи.',
+			})
+		}
+	},
+)
 
 onMounted(async () => {
 	await settings.loadSettings()
 	startNotificationTimer()
 })
 
-onUnmounted(() => {
-	if (notificationTimer) clearInterval(notificationTimer)
-})
-
 watch(
 	() => settings.notificationInterval,
-	() => {
-		startNotificationTimer()
-	},
+	() => startNotificationTimer(),
 )
-
-const startSession = () => {
-	session.startSession()
-}
-
-const skipCurrent = () => {
-	session.skipCurrent()
-}
 </script>
 
 <template>
@@ -86,7 +70,7 @@ const skipCurrent = () => {
 				>
 					<button
 						class="start-btn"
-						@click="startSession"
+						@click="session.startSession()"
 					>
 						Начать гимнастику
 					</button>
@@ -100,7 +84,7 @@ const skipCurrent = () => {
 						v-if="session.currentExercise"
 						:timeLeft="session.timeLeft"
 						:totalTime="settings.getDuration(session.currentExercise.id)"
-						@skip="skipCurrent"
+						@skip="session.skipCurrent()"
 					/>
 				</div>
 
