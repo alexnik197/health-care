@@ -9,11 +9,13 @@ const props = defineProps<{
 	totalTime: number
 	exercise: Exercise
 	isWaitingForNext: boolean
+	isLastExercise: boolean
 }>()
 
 const emit = defineEmits<{
 	skip: []
 	next: []
+	finish: []
 }>()
 
 const settings = useSettingsStore()
@@ -57,9 +59,50 @@ const strokeDasharray = computed(() => {
 			<div class="time-display">{{ timeLeft }}</div>
 		</div>
 
-		<ExerciseAnimation :exerciseId="exercise.id" />
-
 		<h2 class="exercise-title">{{ exercise.title }}</h2>
+		<div class="animation-wrapper">
+			<ExerciseAnimation :exerciseId="exercise.id" />
+			<button
+				v-if="!isWaitingForNext"
+				class="skip-btn icon-only"
+				:title="isLastExercise ? 'Завершить' : 'Пропустить'"
+				@click="isLastExercise ? emit('finish') : emit('skip')"
+			>
+				<svg
+					v-if="isLastExercise"
+					width="24"
+					height="24"
+					viewBox="0 0 24 24"
+					fill="none"
+					class="skip-icon"
+				>
+					<path
+						d="M5 13l4 4L19 7"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/>
+				</svg>
+				<svg
+					v-else
+					width="24"
+					height="24"
+					viewBox="0 0 24 24"
+					fill="none"
+					class="skip-icon"
+				>
+					<path
+						d="M5 4L15 12L5 20V4Z"
+						fill="currentColor"
+					/>
+					<path
+						d="M19 4H17V20H19V4Z"
+						fill="currentColor"
+					/>
+				</svg>
+			</button>
+		</div>
 		<p
 			v-if="settings.showTechnique"
 			class="exercise-technique"
@@ -69,26 +112,25 @@ const strokeDasharray = computed(() => {
 
 		<button
 			v-if="!isWaitingForNext"
-			class="skip-btn"
-			@click="emit('skip')"
+			class="finish-btn"
+			@click="emit('finish')"
 		>
-			Пропустить
 			<svg
-				width="16"
-				height="16"
+				width="20"
+				height="20"
 				viewBox="0 0 24 24"
 				fill="none"
-				class="skip-icon"
 			>
-				<path
-					d="M5 4L15 12L5 20V4Z"
-					fill="currentColor"
-				/>
-				<path
-					d="M19 4H17V20H19V4Z"
+				<rect
+					x="6"
+					y="6"
+					width="12"
+					height="12"
+					rx="2"
 					fill="currentColor"
 				/>
 			</svg>
+			Завершить
 		</button>
 
 		<button
@@ -124,6 +166,7 @@ const strokeDasharray = computed(() => {
 	align-items: center;
 	gap: 1.5rem;
 	margin: 2rem 0;
+	width: 100%;
 }
 
 .timer-circle {
@@ -165,6 +208,14 @@ const strokeDasharray = computed(() => {
 	z-index: 1;
 }
 
+.animation-wrapper {
+	position: relative;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
 .skip-btn {
 	display: flex;
 	align-items: center;
@@ -190,6 +241,18 @@ const strokeDasharray = computed(() => {
 	transform: translateY(0);
 }
 
+.skip-btn.icon-only {
+	position: absolute;
+	right: 1.5rem;
+	width: 48px;
+	height: 48px;
+	padding: 0;
+	border-radius: 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
 .exercise-title {
 	font-size: 1.5rem;
 	font-weight: 600;
@@ -205,6 +268,33 @@ const strokeDasharray = computed(() => {
 	margin: 0;
 	max-width: 400px;
 	line-height: 1.4;
+}
+
+.finish-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	background: rgba(255, 69, 58, 0.1);
+	border: 1px solid rgba(255, 69, 58, 0.2);
+	color: #ff453a;
+	padding: 0.75rem 2rem;
+	border-radius: 999px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	backdrop-filter: blur(8px);
+}
+
+.finish-btn:hover {
+	background: rgba(255, 69, 58, 0.2);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(255, 69, 58, 0.2);
+}
+
+.finish-btn:active {
+	transform: translateY(0);
 }
 
 .next-btn {

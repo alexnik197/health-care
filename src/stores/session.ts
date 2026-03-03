@@ -31,6 +31,18 @@ export const useSessionStore = defineStore('session', {
     isSessionFinished(state): boolean {
       return state.currentCategoryIndex >= state.categories.length
     },
+
+    isLastExercise(state): boolean {
+      const category = state.categories[state.currentCategoryIndex]
+      if (!category) return true
+      const categoryExercises = exercisesData[category]
+      if (!categoryExercises) return true
+
+      const isLastInCategory = state.currentExerciseIndex === categoryExercises.length - 1
+      const isLastCategory = state.currentCategoryIndex === state.categories.length - 1
+
+      return isLastInCategory && isLastCategory
+    },
   },
 
   actions: {

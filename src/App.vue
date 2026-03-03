@@ -86,8 +86,10 @@ watch(
 						:totalTime="settings.getDuration(session.currentExercise.id)"
 						:exercise="session.currentExercise"
 						:isWaitingForNext="session.isWaitingForNext"
+						:isLastExercise="session.isLastExercise"
 						@skip="session.skipCurrent()"
 						@next="session.nextExercise()"
+						@finish="session.finishSession()"
 					/>
 				</div>
 
@@ -211,7 +213,7 @@ h1 {
 
 .main-content {
 	flex: 1;
-	padding: 1.5rem;
+	padding: 0 1.5rem 1.5rem 1.5rem;
 	max-width: 600px;
 	margin: 0 auto;
 	width: 100%;
