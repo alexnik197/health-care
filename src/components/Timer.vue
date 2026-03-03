@@ -25,7 +25,7 @@ const progressPercentage = computed(
 )
 
 const strokeDasharray = computed(() => {
-	const radius = 45
+	const radius = 48
 	const circumference = 2 * Math.PI * radius
 	const progress = (progressPercentage.value / 100) * circumference
 	return `${progress} ${circumference}`
@@ -36,32 +36,38 @@ const strokeDasharray = computed(() => {
 	<div class="timer-container">
 		<div
 			v-if="!isWaitingForNext"
-			class="timer-circle"
+			class="time-display"
 		>
-			<svg
-				viewBox="0 0 100 100"
-				class="progress-ring"
-			>
-				<circle
-					class="progress-ring__background"
-					cx="50"
-					cy="50"
-					r="45"
-				/>
-				<circle
-					class="progress-ring__circle"
-					cx="50"
-					cy="50"
-					r="45"
-					:stroke-dasharray="strokeDasharray"
-				/>
-			</svg>
-			<div class="time-display">{{ timeLeft }}</div>
+			{{ timeLeft }} сек
 		</div>
 
 		<h2 class="exercise-title">{{ exercise.title }}</h2>
+
 		<div class="animation-wrapper">
-			<ExerciseAnimation :exerciseId="exercise.id" />
+			<div class="timer-circle-large">
+				<svg
+					viewBox="0 0 100 100"
+					class="progress-ring"
+				>
+					<circle
+						class="progress-ring__background"
+						cx="50"
+						cy="50"
+						r="48"
+					/>
+					<circle
+						class="progress-ring__circle"
+						:class="{ 'no-transition': timeLeft === totalTime }"
+						cx="50"
+						cy="50"
+						r="48"
+						:stroke-dasharray="strokeDasharray"
+					/>
+				</svg>
+				<div class="animation-container">
+					<ExerciseAnimation :exerciseId="exercise.id" />
+				</div>
+			</div>
 			<button
 				v-if="!isWaitingForNext"
 				class="skip-btn icon-only"
@@ -169,13 +175,58 @@ const strokeDasharray = computed(() => {
 	width: 100%;
 }
 
-.timer-circle {
+.time-display {
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: var(--accent-color);
+	margin-top: -1rem;
+	margin-bottom: 0.5rem;
+}
+
+.animation-wrapper {
 	position: relative;
-	width: 160px;
-	height: 160px;
+	width: 100%;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	margin: 1rem 0;
+}
+
+.timer-circle-large {
+	position: relative;
+	width: 240px;
+	height: 240px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.2);
+	box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.animation-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1;
+}
+
+/* Ensure the SVG animation fits nicely inside the circle */
+:deep(.exercise-animation) {
+	margin: 0 !important;
+	min-height: auto !important;
+	width: 75%;
+	height: 75%;
+}
+
+:deep(.anim-svg) {
+	width: 100%;
+	height: 100%;
 }
 
 .progress-ring {
@@ -185,27 +236,26 @@ const strokeDasharray = computed(() => {
 	width: 100%;
 	height: 100%;
 	transform: rotate(-90deg);
+	z-index: 2;
+	pointer-events: none;
 }
 
 .progress-ring__background {
 	fill: transparent;
-	stroke: rgba(255, 255, 255, 0.1);
-	stroke-width: 6;
+	stroke: rgba(255, 255, 255, 0.05);
+	stroke-width: 2;
 }
 
 .progress-ring__circle {
 	fill: transparent;
 	stroke: #4facfe;
-	stroke-width: 6;
+	stroke-width: 4;
 	stroke-linecap: round;
 	transition: stroke-dasharray 1s linear;
 }
 
-.time-display {
-	font-size: 2.5rem;
-	font-weight: 700;
-	color: #fff;
-	z-index: 1;
+.progress-ring__circle.no-transition {
+	transition: none;
 }
 
 .animation-wrapper {
