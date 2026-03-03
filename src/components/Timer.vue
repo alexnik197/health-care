@@ -1,0 +1,149 @@
+<script setup>
+import { computed } from 'vue'
+
+const props = defineProps({
+	timeLeft: {
+		type: Number,
+		required: true,
+	},
+	totalTime: {
+		type: Number,
+		required: true,
+	},
+})
+
+const emit = defineEmits(['skip'])
+
+const progressPercentage = computed(() => {
+	return ((props.totalTime - props.timeLeft) / props.totalTime) * 100
+})
+
+const strokeDasharray = computed(() => {
+	const radius = 45
+	const circumference = 2 * Math.PI * radius
+	const progress = (progressPercentage.value / 100) * circumference
+	return `${progress} ${circumference}`
+})
+</script>
+
+<template>
+	<div class="timer-container">
+		<div class="timer-circle">
+			<svg
+				viewBox="0 0 100 100"
+				class="progress-ring"
+			>
+				<circle
+					class="progress-ring__background"
+					cx="50"
+					cy="50"
+					r="45"
+				/>
+				<circle
+					class="progress-ring__circle"
+					cx="50"
+					cy="50"
+					r="45"
+					:stroke-dasharray="strokeDasharray"
+				/>
+			</svg>
+			<div class="time-display">{{ timeLeft }}s</div>
+		</div>
+		<button
+			class="skip-btn"
+			@click="emit('skip')"
+		>
+			Пропустить
+			<svg
+				width="16"
+				height="16"
+				viewBox="0 0 24 24"
+				fill="none"
+				class="skip-icon"
+			>
+				<path
+					d="M5 4L15 12L5 20V4Z"
+					fill="currentColor"
+				/>
+				<path
+					d="M19 4H17V20H19V4Z"
+					fill="currentColor"
+				/>
+			</svg>
+		</button>
+	</div>
+</template>
+
+<style scoped>
+.timer-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1.5rem;
+	margin: 2rem 0;
+}
+
+.timer-circle {
+	position: relative;
+	width: 160px;
+	height: 160px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.progress-ring {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	transform: rotate(-90deg);
+}
+
+.progress-ring__background {
+	fill: transparent;
+	stroke: rgba(255, 255, 255, 0.1);
+	stroke-width: 6;
+}
+
+.progress-ring__circle {
+	fill: transparent;
+	stroke: #4facfe;
+	stroke-width: 6;
+	stroke-linecap: round;
+	transition: stroke-dasharray 1s linear;
+}
+
+.time-display {
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: #fff;
+	z-index: 1;
+}
+
+.skip-btn {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	color: #fff;
+	padding: 0.75rem 1.5rem;
+	border-radius: 999px;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	backdrop-filter: blur(8px);
+}
+
+.skip-btn:hover {
+	background: rgba(255, 255, 255, 0.2);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.skip-btn:active {
+	transform: translateY(0);
+}
+</style>
