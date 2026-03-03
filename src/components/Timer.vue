@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import type { Exercise } from '@/types/exercise'
 import { useSettingsStore } from '@/stores/settings'
+import ExerciseAnimation from '@/components/ExerciseAnimation.vue'
 
 const props = defineProps<{
 	timeLeft: number
@@ -31,14 +32,6 @@ const strokeDasharray = computed(() => {
 
 <template>
 	<div class="timer-container">
-		<h2 class="exercise-title">{{ exercise.title }}</h2>
-		<p
-			v-if="settings.showTechnique"
-			class="exercise-technique"
-		>
-			{{ exercise.description }}
-		</p>
-
 		<div
 			v-if="!isWaitingForNext"
 			class="timer-circle"
@@ -63,6 +56,17 @@ const strokeDasharray = computed(() => {
 			</svg>
 			<div class="time-display">{{ timeLeft }}</div>
 		</div>
+
+		<ExerciseAnimation :exerciseId="exercise.id" />
+
+		<h2 class="exercise-title">{{ exercise.title }}</h2>
+		<p
+			v-if="settings.showTechnique"
+			class="exercise-technique"
+		>
+			{{ exercise.description }}
+		</p>
+
 		<button
 			v-if="!isWaitingForNext"
 			class="skip-btn"
