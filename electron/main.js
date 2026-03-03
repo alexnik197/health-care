@@ -39,7 +39,6 @@ function createWindow() {
   })
 }
 
-const { globalShortcut } = require('electron')
 app.whenReady().then(() => {
   createWindow()
   createTray()
@@ -65,10 +64,6 @@ function createTray() {
   })
 }
 
-app.whenReady().then(() => {
-  createWindow()
-  createTray()
-})
 
 app.on('activate', function () {
   if (BrowserWindow.getAllWindows().length === 0) createWindow()
