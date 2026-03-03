@@ -9,6 +9,8 @@ export const useSettingsStore = defineStore('settings', {
     notificationInterval: 60,
     exerciseDurations: {},
     autoStart: false,
+    showTechnique: true,
+    autoNextExercise: false,
   }),
 
   actions: {
@@ -41,11 +43,23 @@ export const useSettingsStore = defineStore('settings', {
       this.saveSettings()
     },
 
+    setShowTechnique(val: boolean): void {
+      this.showTechnique = val
+      this.saveSettings()
+    },
+
+    setAutoNextExercise(val: boolean): void {
+      this.autoNextExercise = val
+      this.saveSettings()
+    },
+
     saveSettings(): void {
       const data: PersistedSettings = {
         notificationInterval: this.notificationInterval,
         exerciseDurations: this.exerciseDurations,
         autoStart: this.autoStart,
+        showTechnique: this.showTechnique,
+        autoNextExercise: this.autoNextExercise,
       }
       localStorage.setItem('health-settings', JSON.stringify(data))
     },
@@ -58,6 +72,8 @@ export const useSettingsStore = defineStore('settings', {
         this.notificationInterval = parsed.notificationInterval ?? 60
         this.exerciseDurations = parsed.exerciseDurations ?? {}
         this.autoStart = parsed.autoStart ?? false
+        this.showTechnique = parsed.showTechnique ?? true
+        this.autoNextExercise = parsed.autoNextExercise ?? false
       }
 
       if (window.electronAPI) {

@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { Exercise } from '@/types/exercise'
+import { useSettingsStore } from '@/stores/settings'
 
 const props = defineProps<{
 	timeLeft: number
 	totalTime: number
+	exercise: Exercise
+	isWaitingForNext: boolean
 }>()
 
 const emit = defineEmits<{
 	skip: []
+	next: []
 }>()
+
+const settings = useSettingsStore()
 
 const progressPercentage = computed(
 	() => ((props.totalTime - props.timeLeft) / props.totalTime) * 100,
@@ -24,7 +31,18 @@ const strokeDasharray = computed(() => {
 
 <template>
 	<div class="timer-container">
-		<div class="timer-circle">
+		<h2 class="exercise-title">{{ exercise.title }}</h2>
+		<p
+			v-if="settings.showTechnique"
+			class="exercise-technique"
+		>
+			{{ exercise.description }}
+		</p>
+
+		<div
+			v-if="!isWaitingForNext"
+			class="timer-circle"
+		>
 			<svg
 				viewBox="0 0 100 100"
 				class="progress-ring"
@@ -43,13 +61,38 @@ const strokeDasharray = computed(() => {
 					:stroke-dasharray="strokeDasharray"
 				/>
 			</svg>
-			<div class="time-display">{{ timeLeft }}s</div>
+			<div class="time-display">{{ timeLeft }}</div>
 		</div>
 		<button
+			v-if="!isWaitingForNext"
 			class="skip-btn"
 			@click="emit('skip')"
 		>
 			Пропустить
+			<svg
+				width="16"
+				height="16"
+				viewBox="0 0 24 24"
+				fill="none"
+				class="skip-icon"
+			>
+				<path
+					d="M5 4L15 12L5 20V4Z"
+					fill="currentColor"
+				/>
+				<path
+					d="M19 4H17V20H19V4Z"
+					fill="currentColor"
+				/>
+			</svg>
+		</button>
+
+		<button
+			v-else
+			class="next-btn"
+			@click="emit('next')"
+		>
+			Следующее упражнение
 			<svg
 				width="16"
 				height="16"
@@ -140,6 +183,49 @@ const strokeDasharray = computed(() => {
 }
 
 .skip-btn:active {
+	transform: translateY(0);
+}
+
+.exercise-title {
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: #fff;
+	margin: 0;
+	text-align: center;
+}
+
+.exercise-technique {
+	font-size: 0.9rem;
+	color: rgba(255, 255, 255, 0.7);
+	text-align: center;
+	margin: 0;
+	max-width: 400px;
+	line-height: 1.4;
+}
+
+.next-btn {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+	color: #fff;
+	border: none;
+	padding: 1rem 2rem;
+	border-radius: 999px;
+	font-size: 1.1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+	margin-top: 1rem;
+}
+
+.next-btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+}
+
+.next-btn:active {
 	transform: translateY(0);
 }
 </style>

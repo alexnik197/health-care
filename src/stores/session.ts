@@ -14,6 +14,7 @@ export const useSessionStore = defineStore('session', {
     timeLeft: 0,
     timerInterval: null as ReturnType<typeof setInterval> | null,
     completedExercises: [] as string[],
+    isWaitingForNext: false,
   }),
 
   getters: {
@@ -38,12 +39,14 @@ export const useSessionStore = defineStore('session', {
       this.currentCategoryIndex = 0
       this.currentExerciseIndex = 0
       this.completedExercises = []
+      this.isWaitingForNext = false
       this.startTimerForCurrent()
       window.electronAPI?.showWindow()
     },
 
     startTimerForCurrent(): void {
       this.clearTimer()
+      this.isWaitingForNext = false
 
       const exercise = this.currentExercise
       if (!exercise) {
@@ -74,7 +77,14 @@ export const useSessionStore = defineStore('session', {
       if (this.currentExercise) {
         this.completedExercises.push(this.currentExercise.id)
       }
-      this.nextExercise()
+      this.clearTimer()
+
+      const settings = useSettingsStore()
+      if (settings.autoNextExercise) {
+        this.nextExercise()
+      } else {
+        this.isWaitingForNext = true
+      }
     },
 
     skipCurrent(): void {
@@ -104,7 +114,7 @@ export const useSessionStore = defineStore('session', {
       this.clearTimer()
       window.electronAPI?.showNotification({
         title: 'Гимнастика завершена!',
-        body: 'Отличная работа! Вы можете закрыть окно.',
+        body: 'Отличная работа! Можете продолжать работу',
       })
     },
   },

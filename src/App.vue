@@ -84,7 +84,10 @@ watch(
 						v-if="session.currentExercise"
 						:timeLeft="session.timeLeft"
 						:totalTime="settings.getDuration(session.currentExercise.id)"
+						:exercise="session.currentExercise"
+						:isWaitingForNext="session.isWaitingForNext"
 						@skip="session.skipCurrent()"
+						@next="session.nextExercise()"
 					/>
 				</div>
 

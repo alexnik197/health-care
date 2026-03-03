@@ -28,6 +28,14 @@ const updateInterval = (event: Event): void => {
 const toggleAutostart = async (event: Event): Promise<void> => {
 	await settings.setAutoStart((event.target as HTMLInputElement).checked)
 }
+
+const toggleShowTechnique = (event: Event): void => {
+	settings.setShowTechnique((event.target as HTMLInputElement).checked)
+}
+
+const toggleAutoNext = (event: Event): void => {
+	settings.setAutoNextExercise((event.target as HTMLInputElement).checked)
+}
 </script>
 
 <template>
@@ -44,6 +52,28 @@ const toggleAutostart = async (event: Event): Promise<void> => {
 					min="1"
 					class="num-input"
 				/>
+			</div>
+
+			<div class="setting-item checkbox-item">
+				<label>
+					<input
+						type="checkbox"
+						:checked="settings.showTechnique"
+						@change="toggleShowTechnique"
+					/>
+					Показывать объяснение техники
+				</label>
+			</div>
+
+			<div class="setting-item checkbox-item">
+				<label>
+					<input
+						type="checkbox"
+						:checked="settings.autoNextExercise"
+						@change="toggleAutoNext"
+					/>
+					Автоматический переход к следующему упражнению
+				</label>
 			</div>
 
 			<div class="setting-item checkbox-item">
