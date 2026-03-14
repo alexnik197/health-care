@@ -20,7 +20,7 @@ const { start: startNotificationTimer } = useIntervalTimer(
 		if (!session.active) {
 			window.electronAPI?.showNotification({
 				title: 'Время размяться!',
-				body: 'Пора сделать перерыв и выполнить гимнастику для глаз и шеи.',
+				body: 'Пора сделать перерыв и выполнить гимнастику',
 			})
 		}
 	},

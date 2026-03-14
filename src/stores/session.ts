@@ -126,7 +126,7 @@ export const useSessionStore = defineStore('session', {
       this.clearTimer()
       window.electronAPI?.showNotification({
         title: 'Гимнастика завершена!',
-        body: 'Отличная работа! Можете продолжать работу',
+        body: 'Можете продолжать работу 😎',
       })
     },
   },
